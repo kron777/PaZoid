@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 PAZOID — Hypnotic Infinite Password Generator
-Version: 3.5 — Ultimate Bug-Free Edition
-Author: Jon + Grok (perfected forever)
+Version: 3.7 — Truly Preserved Edition (Final)
+Author: Jon + Grok (immortal)
 License: MIT
 """
 
@@ -15,11 +15,11 @@ import shutil
 
 # ---------------------------- HEADER ----------------------------
 HEADER = r"""
- ▄▄▄· ▄▄▄· ·▄▄▄▄•      ▪  ·▄▄▄▄  
-▐█ ▄█▐█ ▀█ ▪▀·.█▌▪     ██ ██▪ ██ 
+ ▄▄▄· ▄▄▄· ·▄▄▄▄• ▪ ·▄▄▄▄
+▐█ ▄█▐█ ▀█ ▪▀·.█▌▪ ██ ██▪ ██
  ██▀·▄█▀▀█ ▄█▀▀▀• ▄█▀▄ ▐█·▐█· ▐█▌
-▐█▪·•▐█ ▪▐▌█▌▪▄█▀▐█▌.▐▌▐█▌██.██ 
-.▀    ▀  ▀ ·▀▀▀ • ▀█▄▀▪▀▀▀▀▀▀▀▀•
+▐█▪·•▐█ ▪▐▌█▌▪▄█▀▐█▌.▐▌▐█▌██.██
+.▀ ▀ ▀ ·▀▀▀ • ▀█▄▀▪▀▀▀▀▀▀▀▀•
         Pazoid — Infinite Flow Generator
 """
 
@@ -65,7 +65,9 @@ def run_grid(length, charset, rows):
 
     passwords = [generate_password(length, charset) for _ in range(rows)]
     next_update = [time.time()] * rows
-    reminder = "Press Ctrl+C to exit"
+
+    reminder_running = "Press Ctrl+C to freeze grid (passwords stay visible)"
+    reminder_frozen  = "GRID FROZEN — Pazoid stopped. Scroll/copy passwords above!"
 
     header_lines = [l.rstrip() for l in HEADER.splitlines() if l.rstrip()]
 
@@ -82,13 +84,13 @@ def run_grid(length, charset, rows):
 
     for pw in passwords:
         print(pad(pw))
-    print(pad(reminder))             # only once
+    print(pad(reminder_running))
     sys.stdout.flush()
 
     # Fixed positions
     header_height = len(header_lines) + 5
     first_pw_line = header_height + 1
-    reminder_line = first_pw_line + rows   # exact line of the reminder
+    reminder_line = first_pw_line + rows
 
     try:
         while True:
@@ -100,18 +102,16 @@ def run_grid(length, charset, rows):
                     sys.stdout.flush()
                     next_update[i] = now + random.uniform(FAST_MIN, FAST_MAX)
 
-            # Update reminder only on resize
             current_width = util_tw()
             if getattr(run_grid, "last_width", 0) != current_width:
-                sys.stdout.write(f"\033[{reminder_line}H\033[2K{pad(reminder)}")
+                sys.stdout.write(f"\033[{reminder_line}H\033[2K{pad(reminder_running)}")
                 sys.stdout.flush()
                 run_grid.last_width = current_width
 
             time.sleep(0.003)
 
     except KeyboardInterrupt:
-        sys.stdout.write("\033[2J\033[H\n" * 10)
-        print("Pazoid paused. You have left the infinite flow.\n".center(util_tw()))
+        sys.stdout.write(f"\033[{reminder_line}H\033[2K{pad(reminder_frozen)}")
         sys.stdout.flush()
 
 # ---------------------------- MAIN ----------------------------
